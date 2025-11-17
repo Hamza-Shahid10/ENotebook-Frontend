@@ -1,22 +1,47 @@
 import React, { useState, useEffect } from "react";
 import { Layout, Menu, Drawer, Button } from "antd";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MenuOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 
 const AppHeader = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Check token
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
 
   const items = [
     { label: <Link to="/" onClick={() => setOpen(false)}>Home</Link>, key: "/" },
     { label: <Link to="/about" onClick={() => setOpen(false)}>About</Link>, key: "/about" },
+    // Notes option if needed later
+    // { label: <Link to="/notes" onClick={() => setOpen(false)}>Notes</Link>, key: "/notes" },
+    ...(!isLoggedIn
+      ? [
+          { label: <Link to="/login" onClick={() => setOpen(false)}>Login</Link>, key: "/login" },
+          { label: <Link to="/signup" onClick={() => setOpen(false)}>Signup</Link>, key: "/signup" }
+        ]
+      : [
+          {
+            label: <span onClick={handleLogout}>Logout</span>,
+            key: "logout"
+          }
+        ]
+    )
   ];
-  // { label: <Link to="/notes" onClick={() => setOpen(false)}>Notes</Link>, key: "/notes" },
 
-  // Responsive check
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -30,51 +55,38 @@ const AppHeader = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        background: "#001529",
         padding: "0 20px",
+        background: "#001529"
       }}
     >
-      {/* Logo / Title */}
-      <div
-        style={{
-          color: "white",
-          fontSize: "20px",
-          fontWeight: "bold",
-        }}
-      >
+      <div style={{ color: "white", fontSize: 20, fontWeight: "bold" }}>
         ENotebook
       </div>
 
-      {/* Desktop Menu */}
+      {/* Desktop */}
       {!isMobile && (
         <Menu
           theme="dark"
           mode="horizontal"
           selectedKeys={[location.pathname]}
           items={items}
-          style={{
-            flex: 1,
-            justifyContent: "flex-end",
-            background: "transparent",
-            borderBottom: "none",
-          }}
-          overflowedIndicator={null}
+          style={{ background: "transparent", borderBottom: "none" }}
         />
       )}
 
-      {/* Mobile Burger Button */}
+      {/* Mobile */}
       {isMobile && (
         <>
           <Button
             type="text"
-            icon={<MenuOutlined style={{ color: "white", fontSize: "22px" }} />}
+            icon={<MenuOutlined style={{ color: "white", fontSize: 22 }} />}
             onClick={() => setOpen(true)}
           />
           <Drawer
             title="ENotebook"
             placement="right"
-            onClose={() => setOpen(false)}
             open={open}
+            onClose={() => setOpen(false)}
             bodyStyle={{ padding: 0 }}
           >
             <Menu
@@ -82,6 +94,7 @@ const AppHeader = () => {
               selectedKeys={[location.pathname]}
               items={items}
               style={{ borderRight: "none" }}
+              onClick={() => setOpen(false)}
             />
           </Drawer>
         </>

@@ -4,6 +4,8 @@ import { Layout } from "antd";
 import AppHeader from "./components/Header";
 import Home from "./pages/Home";
 import About from "./pages/About";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import NoteState from "./context/notes/noteState";
 
 const { Content } = Layout;
@@ -18,6 +20,8 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
             </Routes>
           </Content>
         </Layout>
